@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 
 import { cleanBin, cleanGit, cleanRegistry, cleanTargetDir } from "./cleanup";
-import { CacheConfig, isCacheUpToDate } from "./config";
+import { CacheConfig } from "./config";
 import { getCacheProvider, reportError } from "./utils";
 
 process.on("uncaughtException", (e) => {
@@ -26,13 +26,16 @@ async function run() {
     console.log("CARGO BINS - SAVE:");
     console.log(cfg.cargoBins);
 
-    if (isCacheUpToDate()) {
-      core.info(`Cache up-to-date.`);
-      return;
-    }
+    //if (isCacheUpToDate()) {
+    //  core.info(`Cache up-to-date.`);
+    //  return;
+    //}
 
-    const config = CacheConfig.fromState();
+    //const config = CacheConfig.fromState();
+    const config = await CacheConfig.new();
     config.printInfo(cacheProvider);
+    console.log("CARGO BINS - SAVE:");
+    console.log(cfg.cargoBins);
     core.info("");
 
     // TODO: remove this once https://github.com/actions/toolkit/pull/553 lands

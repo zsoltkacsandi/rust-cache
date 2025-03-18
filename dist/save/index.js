@@ -85430,7 +85430,7 @@ var __webpack_exports__ = {};
 "use strict";
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(7484);
+var lib_core = __nccwpck_require__(7484);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(5236);
 // EXTERNAL MODULE: ./node_modules/@actions/io/lib/io.js
@@ -86601,11 +86601,11 @@ var cache_lib_cache = __nccwpck_require__(5116);
 function reportError(e) {
     const { commandFailed } = e;
     if (commandFailed) {
-        core.error(`Command failed: ${commandFailed.command}`);
-        core.error(commandFailed.stderr);
+        lib_core.error(`Command failed: ${commandFailed.command}`);
+        lib_core.error(commandFailed.stderr);
     }
     else {
-        core.error(`${e.stack}`);
+        lib_core.error(`${e.stack}`);
     }
 }
 async function getCmdOutput(cmd, args = [], options = {}) {
@@ -86635,7 +86635,7 @@ async function getCmdOutput(cmd, args = [], options = {}) {
     return stdout;
 }
 function getCacheProvider() {
-    const cacheProvider = core.getInput("cache-provider");
+    const cacheProvider = lib_core.getInput("cache-provider");
     const cache = cacheProvider === "github" ? cache_lib_cache : cacheProvider === "buildjet" ? lib_cache : undefined;
     if (!cache) {
         throw new Error(`The \`cache-provider\` \`{cacheProvider}\` is not valid.`);
@@ -86668,11 +86668,11 @@ class Workspace {
     async getPackages(filter, ...extraArgs) {
         let packages = [];
         try {
-            core.debug(`collecting metadata for "${this.root}"`);
+            lib_core.debug(`collecting metadata for "${this.root}"`);
             const meta = JSON.parse(await getCmdOutput("cargo", ["metadata", "--all-features", "--format-version", "1", ...extraArgs], {
                 cwd: this.root,
             }));
-            core.debug(`workspace "${this.root}" has ${meta.packages.length} packages`);
+            lib_core.debug(`workspace "${this.root}" has ${meta.packages.length} packages`);
             for (const pkg of meta.packages.filter(filter)) {
                 const targets = pkg.targets.filter((t) => t.kind.some((kind) => SAVE_TARGETS.has(kind))).map((t) => t.name);
                 packages.push({ name: pkg.name, version: pkg.version, targets, path: external_path_default().dirname(pkg.manifest_path) });
@@ -86740,13 +86740,13 @@ class CacheConfig {
         // Construct key prefix:
         // This uses either the `shared-key` input,
         // or the `key` input combined with the `job` key.
-        let key = core.getInput("prefix-key") || "v0-rust";
-        const sharedKey = core.getInput("shared-key");
+        let key = lib_core.getInput("prefix-key") || "v0-rust";
+        const sharedKey = lib_core.getInput("shared-key");
         if (sharedKey) {
             key += `-${sharedKey}`;
         }
         else {
-            const inputKey = core.getInput("key");
+            const inputKey = lib_core.getInput("key");
             if (inputKey) {
                 key += `-${inputKey}`;
             }
@@ -86775,7 +86775,7 @@ class CacheConfig {
         self.keyRust = keyRust;
         // these prefixes should cover most of the compiler / rust / cargo keys
         const envPrefixes = ["CARGO", "CC", "CFLAGS", "CXX", "CMAKE", "RUST"];
-        envPrefixes.push(...core.getInput("env-vars").split(/\s+/).filter(Boolean));
+        envPrefixes.push(...lib_core.getInput("env-vars").split(/\s+/).filter(Boolean));
         // sort the available env vars so we have a more stable hash
         const keyEnvs = [];
         const envKeys = Object.keys(process.env);
@@ -86793,11 +86793,11 @@ class CacheConfig {
         // Construct the lockfiles portion of the key:
         // This considers all the files found via globbing for various manifests
         // and lockfiles.
-        self.cacheBin = core.getInput("cache-bin").toLowerCase() == "true";
+        self.cacheBin = lib_core.getInput("cache-bin").toLowerCase() == "true";
         // Constructs the workspace config and paths to restore:
         // The workspaces are given using a `$workspace -> $target` syntax.
         const workspaces = [];
-        const workspacesInput = core.getInput("workspaces") || ".";
+        const workspacesInput = lib_core.getInput("workspaces") || ".";
         for (const workspace of workspacesInput.trim().split("\n")) {
             let [root, target = "target"] = workspace.split("->").map((s) => s.trim());
             root = external_path_default().resolve(root);
@@ -86850,7 +86850,7 @@ class CacheConfig {
                 }
                 catch (e) {
                     // Fallback to caching them as regular file
-                    core.warning(`Error parsing Cargo.toml manifest, fallback to caching entire file: ${e}`);
+                    lib_core.warning(`Error parsing Cargo.toml manifest, fallback to caching entire file: ${e}`);
                     keyFiles.push(cargo_manifest);
                 }
             }
@@ -86862,7 +86862,7 @@ class CacheConfig {
                     if ((parsed.version !== 3 && parsed.version !== 4) || !("package" in parsed)) {
                         // Fallback to caching them as regular file since this action
                         // can only handle Cargo.lock format version 3
-                        core.warning("Unsupported Cargo.lock format, fallback to caching entire file");
+                        lib_core.warning("Unsupported Cargo.lock format, fallback to caching entire file");
                         keyFiles.push(cargo_lock);
                         continue;
                     }
@@ -86874,7 +86874,7 @@ class CacheConfig {
                 }
                 catch (e) {
                     // Fallback to caching them as regular file
-                    core.warning(`Error parsing Cargo.lock manifest, fallback to caching entire file: ${e}`);
+                    lib_core.warning(`Error parsing Cargo.lock manifest, fallback to caching entire file: ${e}`);
                     keyFiles.push(cargo_lock);
                 }
             }
@@ -86899,11 +86899,11 @@ class CacheConfig {
                 ...self.cachePaths,
             ];
         }
-        const cacheTargets = core.getInput("cache-targets").toLowerCase() || "true";
+        const cacheTargets = lib_core.getInput("cache-targets").toLowerCase() || "true";
         if (cacheTargets === "true") {
             self.cachePaths.push(...workspaces.map((ws) => ws.target));
         }
-        const cacheDirectories = core.getInput("cache-directories");
+        const cacheDirectories = lib_core.getInput("cache-directories");
         for (const dir of cacheDirectories.trim().split(/\s+/).filter(Boolean)) {
             self.cachePaths.push(dir);
         }
@@ -86922,7 +86922,7 @@ class CacheConfig {
      * @see {@link CacheConfig#new}
      */
     static fromState() {
-        const source = core.getState(STATE_CONFIG);
+        const source = lib_core.getState(STATE_CONFIG);
         if (!source) {
             throw new Error("Cache configuration not found in state");
         }
@@ -86935,40 +86935,40 @@ class CacheConfig {
      * Prints the configuration to the action log.
      */
     printInfo(cacheProvider) {
-        core.startGroup("Cache Configuration");
-        core.info(`Cache Provider:`);
-        core.info(`    ${cacheProvider.name}`);
-        core.info(`Workspaces:`);
+        lib_core.startGroup("Cache Configuration");
+        lib_core.info(`Cache Provider:`);
+        lib_core.info(`    ${cacheProvider.name}`);
+        lib_core.info(`Workspaces:`);
         for (const workspace of this.workspaces) {
-            core.info(`    ${workspace.root}`);
+            lib_core.info(`    ${workspace.root}`);
         }
-        core.info(`Cache Paths:`);
+        lib_core.info(`Cache Paths:`);
         for (const path of this.cachePaths) {
-            core.info(`    ${path}`);
+            lib_core.info(`    ${path}`);
         }
-        core.info(`Restore Key:`);
-        core.info(`    ${this.restoreKey}`);
-        core.info(`Cache Key:`);
-        core.info(`    ${this.cacheKey}`);
-        core.info(`.. Prefix:`);
-        core.info(`  - ${this.keyPrefix}`);
-        core.info(`.. Environment considered:`);
-        core.info(`  - Rust Version: ${this.keyRust}`);
+        lib_core.info(`Restore Key:`);
+        lib_core.info(`    ${this.restoreKey}`);
+        lib_core.info(`Cache Key:`);
+        lib_core.info(`    ${this.cacheKey}`);
+        lib_core.info(`.. Prefix:`);
+        lib_core.info(`  - ${this.keyPrefix}`);
+        lib_core.info(`.. Environment considered:`);
+        lib_core.info(`  - Rust Version: ${this.keyRust}`);
         for (const env of this.keyEnvs) {
-            core.info(`  - ${env}`);
+            lib_core.info(`  - ${env}`);
         }
-        core.info(`.. Lockfiles considered:`);
+        lib_core.info(`.. Lockfiles considered:`);
         for (const file of this.keyFiles) {
-            core.info(`  - ${file}`);
+            lib_core.info(`  - ${file}`);
         }
-        core.endGroup();
+        lib_core.endGroup();
     }
     /**
      * Saves the configuration to the state store.
      * This is used to restore the configuration in the post action.
      */
     saveState() {
-        core.saveState(STATE_CONFIG, this);
+        lib_core.saveState(STATE_CONFIG, this);
     }
 }
 /**
@@ -87031,7 +87031,7 @@ function sort_and_uniq(a) {
 
 
 async function cleanTargetDir(targetDir, packages, checkTimestamp = false) {
-    core.debug(`cleaning target directory "${targetDir}"`);
+    lib_core.debug(`cleaning target directory "${targetDir}"`);
     // remove all *files* from the profile directory
     let dir = await external_fs_default().promises.opendir(targetDir);
     for await (const dirent of dir) {
@@ -87055,7 +87055,7 @@ async function cleanTargetDir(targetDir, packages, checkTimestamp = false) {
     }
 }
 async function cleanProfileTarget(profileDir, packages, checkTimestamp = false) {
-    core.debug(`cleaning profile directory "${profileDir}"`);
+    lib_core.debug(`cleaning profile directory "${profileDir}"`);
     // Quite a few testing utility crates store compilation artifacts as nested
     // workspaces under `target/tests`. Notably, `target/tests/target` and
     // `target/tests/trybuild`.
@@ -87125,7 +87125,7 @@ async function cleanRegistry(packages, crates = true) {
     // remove `.cargo/credentials.toml`
     try {
         const credentials = external_path_default().join(CARGO_HOME, ".cargo", "credentials.toml");
-        core.debug(`deleting "${credentials}"`);
+        lib_core.debug(`deleting "${credentials}"`);
         await external_fs_default().promises.unlink(credentials);
     }
     catch { }
@@ -87147,7 +87147,7 @@ async function cleanRegistry(packages, crates = true) {
         }
     }
     if (!crates) {
-        core.debug("skipping registry cache and src cleanup");
+        lib_core.debug("skipping registry cache and src cleanup");
         return;
     }
     // `.cargo/registry/src`
@@ -87297,7 +87297,7 @@ async function rmExcept(dirName, keepPrefix, checkTimestamp = false) {
 async function rm(parent, dirent) {
     try {
         const fileName = external_path_default().join(parent, dirent.name);
-        core.debug(`deleting "${fileName}"`);
+        lib_core.debug(`deleting "${fileName}"`);
         if (dirent.isFile()) {
             await external_fs_default().promises.unlink(fileName);
         }
@@ -87308,7 +87308,7 @@ async function rm(parent, dirent) {
     catch { }
 }
 async function rmRF(dirName) {
-    core.debug(`deleting "${dirName}"`);
+    lib_core.debug(`deleting "${dirName}"`);
     await io.rmRF(dirName);
 }
 
@@ -87319,14 +87319,14 @@ async function rmRF(dirName) {
 
 
 process.on("uncaughtException", (e) => {
-    core.error(e.message);
+    lib_core.error(e.message);
     if (e.stack) {
-        core.error(e.stack);
+        lib_core.error(e.stack);
     }
 });
 async function run() {
     const cacheProvider = getCacheProvider();
-    const save = core.getInput("save-if").toLowerCase() || "true";
+    const save = lib_core.getInput("save-if").toLowerCase() || "true";
     if (!(cacheProvider.cache.isFeatureAvailable() && save === "true")) {
         return;
     }
@@ -87334,13 +87334,16 @@ async function run() {
         const cfg = CacheConfig.fromState();
         console.log("CARGO BINS - SAVE:");
         console.log(cfg.cargoBins);
-        if (isCacheUpToDate()) {
-            core.info(`Cache up-to-date.`);
-            return;
-        }
-        const config = CacheConfig.fromState();
+        //if (isCacheUpToDate()) {
+        //  core.info(`Cache up-to-date.`);
+        //  return;
+        //}
+        //const config = CacheConfig.fromState();
+        const config = await CacheConfig.new();
         config.printInfo(cacheProvider);
-        core.info("");
+        console.log("CARGO BINS - SAVE:");
+        console.log(cfg.cargoBins);
+        lib_core.info("");
         // TODO: remove this once https://github.com/actions/toolkit/pull/553 lands
         if (process.env["RUNNER_OS"] == "macOS") {
             await macOsWorkaround();
@@ -87350,38 +87353,38 @@ async function run() {
             const packages = await workspace.getPackagesOutsideWorkspaceRoot();
             allPackages.push(...packages);
             try {
-                core.info(`... Cleaning ${workspace.target} ...`);
+                lib_core.info(`... Cleaning ${workspace.target} ...`);
                 await cleanTargetDir(workspace.target, packages);
             }
             catch (e) {
-                core.debug(`${e.stack}`);
+                lib_core.debug(`${e.stack}`);
             }
         }
         try {
-            const crates = core.getInput("cache-all-crates").toLowerCase() || "false";
-            core.info(`... Cleaning cargo registry (cache-all-crates: ${crates}) ...`);
+            const crates = lib_core.getInput("cache-all-crates").toLowerCase() || "false";
+            lib_core.info(`... Cleaning cargo registry (cache-all-crates: ${crates}) ...`);
             await cleanRegistry(allPackages, crates !== "true");
         }
         catch (e) {
-            core.debug(`${e.stack}`);
+            lib_core.debug(`${e.stack}`);
         }
         if (config.cacheBin) {
             try {
-                core.info(`... Cleaning cargo/bin ...`);
+                lib_core.info(`... Cleaning cargo/bin ...`);
                 await cleanBin(config.cargoBins);
             }
             catch (e) {
-                core.debug(`${e.stack}`);
+                lib_core.debug(`${e.stack}`);
             }
         }
         try {
-            core.info(`... Cleaning cargo git cache ...`);
+            lib_core.info(`... Cleaning cargo git cache ...`);
             await cleanGit(allPackages);
         }
         catch (e) {
-            core.debug(`${e.stack}`);
+            lib_core.debug(`${e.stack}`);
         }
-        core.info(`... Saving cache ...`);
+        lib_core.info(`... Saving cache ...`);
         // Pass a copy of cachePaths to avoid mutating the original array as reported by:
         // https://github.com/actions/toolkit/pull/1378
         // TODO: remove this once the underlying bug is fixed.
