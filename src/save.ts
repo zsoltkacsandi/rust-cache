@@ -22,9 +22,9 @@ async function run() {
   }
 
   try {
-    const cfg = CacheConfig.fromState();
-    console.log("CARGO BINS - SAVE:");
-    console.log(cfg.cargoBins);
+    //const cfg = CacheConfig.fromState();
+    //console.log("CARGO BINS - SAVE:");
+    //console.log(cfg.cargoBins);
 
     //if (isCacheUpToDate()) {
     //  core.info(`Cache up-to-date.`);
@@ -35,7 +35,7 @@ async function run() {
     const config = await CacheConfig.new();
     config.printInfo(cacheProvider);
     console.log("CARGO BINS - SAVE:");
-    console.log(cfg.cargoBins);
+    console.log(config.cargoBins);
     core.info("");
 
     // TODO: remove this once https://github.com/actions/toolkit/pull/553 lands

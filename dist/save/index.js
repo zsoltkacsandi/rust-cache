@@ -87331,9 +87331,9 @@ async function run() {
         return;
     }
     try {
-        const cfg = CacheConfig.fromState();
-        console.log("CARGO BINS - SAVE:");
-        console.log(cfg.cargoBins);
+        //const cfg = CacheConfig.fromState();
+        //console.log("CARGO BINS - SAVE:");
+        //console.log(cfg.cargoBins);
         //if (isCacheUpToDate()) {
         //  core.info(`Cache up-to-date.`);
         //  return;
@@ -87342,7 +87342,7 @@ async function run() {
         const config = await CacheConfig.new();
         config.printInfo(cacheProvider);
         console.log("CARGO BINS - SAVE:");
-        console.log(cfg.cargoBins);
+        console.log(config.cargoBins);
         lib_core.info("");
         // TODO: remove this once https://github.com/actions/toolkit/pull/553 lands
         if (process.env["RUNNER_OS"] == "macOS") {
