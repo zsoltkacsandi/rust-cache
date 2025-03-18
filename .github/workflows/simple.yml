@@ -20,5 +20,5 @@ jobs:
           workspaces: tests
 
       - run: |
-          cargo install typos
+          cargo install cargo-sort
         working-directory: tests
